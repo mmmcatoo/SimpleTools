@@ -1,0 +1,22 @@
+{
+    "name": "mmmcatoo/simple_tools",
+    "description": "部分轮子的在创造方便简化重复性工作",
+    "minimum-stability": "stable",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "mmmcatoo",
+            "email": "mmmcatoo@qq.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SimpleTools\\": "src/"
+        }
+    },
+    "type": "library",
+    "require": {
+        "phpunit/phpunit": "^9.0",
+        "phpoffice/phpspreadsheet": "^1.11"
+    }
+}
