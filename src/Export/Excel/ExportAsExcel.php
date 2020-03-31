@@ -167,6 +167,11 @@ class ExportAsExcel
             if (isset($sheetOptions['freeze'])) {
                 $this->workSheet->freezePane($sheetOptions['freeze']);
             }
+
+            // 对导出的Sheet进行自定义设置
+            if (isset($sheetOptions['callback']) && ($sheetOptions['callback'] instanceof Closure)) {
+                $sheetOptions['callback']($this->workSheet, $this->spreedSheet);
+            }
             // 开始绘制头部数据
             $this->drawHeaderCell();
             // 绘制单元格数据
@@ -267,12 +272,12 @@ class ExportAsExcel
      */
     protected function drawCell(string $colIndex, int $rowIndex, array $options, array $records)
     {
-        $rawValue = $records[$options['field']];
+        $rawValue = $records[$options['field']] ?? '';
         // 绘制数据单元格需要读取参数回调
         if ($this->drawingType === 'CELL') {
             // 如果回调是个闭包
             if (isset($options['callback']) && ($options['callback'] instanceof Closure)) {
-                $rawValue = $options['callback']($rawValue, $records, $colIndex, $rowIndex);
+                $rawValue = $options['callback']($rawValue, $records, $colIndex, $rowIndex, $options);
             }
         }
 
@@ -283,7 +288,7 @@ class ExportAsExcel
             if ($this->drawingType === 'CELL') {
                 // 绘制单元格的时候 可以设置回调值干预属性
                 if (array_key_exists($attribute . 'Callback', $options)) {
-                    $modifyData = $options[$attribute . 'Callback']($rawValue, $records[$options['field']], $attribute, $options, $rowIndex, $colIndex);
+                    $modifyData = $options[$attribute . 'Callback']($rawValue, $records[$options['field']] ?? '', $attribute, $options, $rowIndex, $colIndex, $records);
                     if ($modifyData) {
                         if (is_string($modifyData) && strpos($modifyData, '@') !== false) {
                             // 替换部分属性
@@ -299,6 +304,13 @@ class ExportAsExcel
 
             // 绘制单元格属性
             $this->getDrawAttribute($options, $attribute, $rowIndex, $colIndex);
+        }
+
+        /**
+         * 复杂的格式需要自行处理
+         */
+        if (isset($options['attr']) && ($options['attr'] instanceof Closure)) {
+            $options['attr']($rawValue, $records[$options['field']] ?? '', $colIndex, $rowIndex, $options, $this->workSheet);
         }
     }
 
