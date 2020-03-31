@@ -11,13 +11,15 @@
 
 namespace SimpleTools\Export\Excel;
 
-use SimpleTools\Exception\Export\HeaderOptionsEmptyException;
-use SimpleTools\Exception\Export\SavePathAccessDeniedException;
-use SimpleTools\Exception\Export\SavePathCreateFailedException;
+use Closure;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Settings;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Psr\SimpleCache\CacheInterface;
+use SimpleTools\Exception\Export\HeaderOptionsEmptyException;
+use SimpleTools\Exception\Export\SavePathAccessDeniedException;
+use SimpleTools\Exception\Export\SavePathCreateFailedException;
+use Throwable;
 
 class ExportAsExcel
 {
@@ -123,13 +125,13 @@ class ExportAsExcel
      * 导入要写入的单元格数据
      *
      * @param array $dataSet
-     * @param int $startOffset
+     * @param int   $startOffset
      * @return \SimpleTools\Export\Excel\ExportAsExcel
      * @throws void
      */
     public function setDataSet(array $dataSet, int $startOffset): ExportAsExcel
     {
-        $this->dataSet = $dataSet;
+        $this->dataSet     = $dataSet;
         $this->startOffset = $startOffset;
         return $this;
     }
@@ -182,7 +184,7 @@ class ExportAsExcel
             $writer = IOFactory::createWriter($this->spreedSheet, $type);
             $writer->save($fileName);
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->errorMessage = $e->getMessage();
             return false;
         }
@@ -269,7 +271,7 @@ class ExportAsExcel
         // 绘制数据单元格需要读取参数回调
         if ($this->drawingType === 'CELL') {
             // 如果回调是个闭包
-            if (isset($options['callback']) && ($options['callback'] instanceof \Closure)) {
+            if (isset($options['callback']) && ($options['callback'] instanceof Closure)) {
                 $rawValue = $options['callback']($rawValue, $records, $colIndex, $rowIndex);
             }
         }
@@ -298,8 +300,6 @@ class ExportAsExcel
             // 绘制单元格属性
             $this->getDrawAttribute($options, $attribute, $rowIndex, $colIndex);
         }
-
-
     }
 
     /**
